@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+</head>
+<body>
+
+<script type="text/javascript">
+
+function insertSort( arr ){
+	let len = arr.length;
+	for(let i=1;i<len;i++){
+		let temp = arr[i];
+		let j = i-1;//默认已排序的元素
+		//在已经排序好的队列进行从后到前的扫描
+		while( j>=0 && arr[j] > temp ){
+			//已排序的元素大于新元素，将该元素移动到下一个位置
+			arr[j+1] = arr[j];
+			j--;
+		}
+		arr[j+1] = temp;
+	}	
+	return arr;
+}
+let arr = [5,3,4,2,1];
+
+console.log(  insertSort(arr)  );
+
+
+
+
+</script>
+
+</body>
+</html>

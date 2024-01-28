@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+</head>
+<body>
+
+<script type="text/javascript">
+var intersection = function(nums1, nums2) {
+    let set = new Set(nums2);
+    return [...new Set(nums1)].filter((val)=>set.has(val));
+};
+</script>
+</body>
+</html>

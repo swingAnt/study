@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+</head>
+<body>
+
+<script type="text/javascript">
+
+
+const a = {a:1,b:4};
+const b = {b:2,c:3};
+
+let obj1 = Object.assign(a,b);
+console.log( obj1 );
+
+
+let obj2 = {...a,...b};
+console.log( obj2 );
+
+
+function extend( target,  source ){
+	for(var key in source){
+		target[key] = source[key];
+	}
+	return target;
+}
+console.log( extend(a,b) );
+
+
+
+</script>
+
+</body>
+</html>

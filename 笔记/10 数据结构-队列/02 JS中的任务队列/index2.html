@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+</head>
+<body>
+
+<script type="text/javascript">
+	
+
+Promise.resolve('3333').then(res=>{
+	console.log( res );
+
+	setTimeout(()=>{
+		console.log('Promise setTimeout')
+	},0)
+})
+
+setTimeout(()=>{
+	console.log( 111 );
+	Promise.resolve('setTimeout Promise').then(res=>{
+		console.log( res );
+	})
+
+},0)
+
+
+console.log( 222 );
+
+
+
+
+</script>
+
+</body>
+</html>

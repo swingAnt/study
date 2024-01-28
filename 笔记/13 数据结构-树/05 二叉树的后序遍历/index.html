@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+</head>
+<body>
+
+<script type="text/javascript">
+const tree = {
+	val:'1',
+	left:{
+		val:'2',
+		left:{val:'4',left:null,right:null},
+		right:{val:'5',left:null,right:null}
+	},
+	right:{
+		val:'3',
+		left:{val:'6',left:null,right:null},
+		right:{val:'7',left:null,right:null}
+	}
+}
+//递归
+// var postorderTraversal = function(root) {
+// 	const arr = [];
+// 	const fun = ( node )=>{
+// 		if( node ){
+// 			fun( node.left );
+// 			fun( node.right );
+// 			arr.push(  node.val );
+// 		}
+// 	}
+// 	fun( root );
+// 	return arr;
+// };
+
+// console.log( postorderTraversal(tree) );
+
+//非递归
+var postorderTraversal = function(root) {
+	if( !root ) return [];
+	let arr = [];
+	let stack = [root];
+	while( stack.length ){
+		const o = stack.pop();
+		arr.unshift( o.val );
+		o.left && stack.push( o.left );
+		o.right && stack.push( o.right );
+	}
+	return arr;
+}
+console.log( postorderTraversal(tree) );
+</script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+</head>
+<body>
+
+
+<script type="text/javascript">
+const tree = {
+	val:'1',
+	left:{
+		val:'2',
+		left:{val:'4',left:null,right:null},
+		right:{val:'5',left:null,right:null}
+	},
+	right:{
+		val:'3',
+		left:{val:'6',left:null,right:null},
+		right:{val:'7',left:null,right:null}
+	}
+}
+
+var invertTree = function(root) {
+
+	if(  root == null ) return null;
+
+	let tmp = root.left;
+	root.left = root.right;
+	root.right = tmp;
+	invertTree(root.left);
+	invertTree(root.right);
+	return root;
+
+};
+
+
+console.log( invertTree(tree) );
+
+</script>
+</body>
+</html>

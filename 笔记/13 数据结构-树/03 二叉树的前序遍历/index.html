@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+</head>
+<body>
+
+
+
+<script type="text/javascript">
+const tree = {
+	val:'1',
+	left:{
+		val:'2',
+		left:{val:'4',left:null,right:null},
+		right:{val:'5',left:null,right:null}
+	},
+	right:{
+		val:'3',
+		left:{val:'6',left:null,right:null},
+		right:{val:'7',left:null,right:null}
+	}
+}
+
+//递归方式
+var preorderTraversal = function(root) {
+	let arr = [];
+	var fun = ( node )=>{
+		if( node ){
+			//先根节点
+			arr.push( node.val );
+			//遍历左子树
+			fun( node.left );
+			//遍历右子树
+			fun( node.right );
+		}
+	}
+	fun( root );
+	return arr;
+};
+console.log( preorderTraversal(tree) );
+
+
+//非递归版的形式
+var preorderTraversal = function(root) {
+	if( !root ) return [];
+	let arr = [];
+	//根节点入栈
+	let stack = [root];
+	while( stack.length ){
+		//出栈
+		let o = stack.pop();
+		arr.push( o.val );
+
+		o.right && stack.push( o.right );
+		o.left && stack.push( o.left );
+	}
+	return arr;
+}
+console.log( preorderTraversal(tree) );
+
+
+</script>
+</body>
+</html>

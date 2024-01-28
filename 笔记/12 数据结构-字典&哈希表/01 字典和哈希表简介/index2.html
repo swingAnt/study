@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+</head>
+<body>
+
+<script type="text/javascript">
+
+class HashTable{
+
+	constructor(){
+		this.table = [];
+	}
+	hashCode( key ){
+		let hash = 0;
+		for( let i =0;i<key.length;i++){
+			hash += key.charCodeAt(i);
+		}
+		return hash;
+	}	
+	put( key , val ){
+		let hashKey = this.hashCode(key);
+		this.table[ hashKey ] = val;
+	}
+	get( key ){
+		let hashKey = this.hashCode(key);
+		return this.table[hashKey];
+	}
+}
+
+let hashTable = new HashTable();
+hashTable.put('person','章三');
+console.log( hashTable );
+console.log(  hashTable.get('person') );
+
+</script>
+
+</body>
+</html>

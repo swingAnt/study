@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+</head>
+<body>
+
+
+<script type="text/javascript">
+
+let a = {key:'aaa'};
+let b = {key:'bbb'};
+let c = {key:'ccc'};
+let d = {key:'ddd'};
+
+a.next = b;
+b.next = c; 
+c.next = d;
+d.next = null;
+
+console.log( a );
+
+
+//遍历链表
+let obj = a;
+while( obj && obj.key ){
+	console.log( obj.key );
+	obj = obj.next;
+}
+
+//链表中插入某个元素
+let m = {key:'mmmmm'};
+c.next = m;
+m.next = d;
+console.log( a );
+
+//删除操作
+c.next = d;
+
+
+</script>
+
+</body>
+</html>

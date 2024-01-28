@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+</head>
+<body>
+
+<script type="text/javascript">
+//选择排序
+function sortMin( arr ){
+	let indexMin = 0;
+	for( let i=0;i<arr.length-1;i++){
+		indexMin = i;
+		for( let j=i+1;j<arr.length;j++){
+			if( arr[j] < arr[indexMin] ){
+				indexMin = j;
+			}
+		}
+		let temp = arr[i];
+		arr[i] = arr[indexMin];
+		arr[indexMin] = temp;
+	}
+	return arr;
+}
+let arr = [29,10,14,37,14];
+console.log( sortMin(arr) );
+</script>
+
+</body>
+</html>

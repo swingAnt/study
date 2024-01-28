@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+</head>
+<body>
+
+
+<script type="text/javascript">
+const tree = {
+	val:'1',
+	left:{
+		val:'2',
+		left:{val:'4',left:null,right:null},
+		right:{val:'5',left:null,right:null}
+	},
+	right:{
+		val:'3',
+		left:{val:'6',left:null,right:null},
+		right:{val:'7',left:null,right:null}
+	}
+}
+
+var maxDepth = function(root) {
+	if( !root ) return 0;
+	const stack = [root];
+	let num = 0;
+	while( stack.length ){
+		let len = stack.length;
+		num++;
+		while( len-- ){
+			const o = stack.shift();
+			o.left && stack.push(  o.left );
+			o.right && stack.push(  o.right );
+		}
+	}
+	return num;
+};
+console.log( maxDepth(tree) );
+
+</script>
+</body>
+</html>

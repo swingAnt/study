@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+</head>
+<body>
+
+<script type="text/javascript">
+var twoSum = function(nums, target) {
+    let map = new Map();
+    for( let i=0;i<nums.length;i++){
+        num = target - nums[i];
+        if( map.has(num) ){
+            return [map.get(num),i];
+        }
+        map.set(nums[i],i);
+    }
+};
+</script>
+
+</body>
+</html>

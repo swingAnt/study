@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+</head>
+<body>
+
+<script type="text/javascript">
+var containsDuplicate = function(nums) {
+    // let map = new Map();
+    // for(const x of nums ){
+    //     if( map.has(x) ){
+    //         return true;
+    //     }
+    //     map.set(x,1);
+    // }
+    // return false;
+    let set = new Set();
+    for( const x of nums ){
+        if( set.has(x) ){
+            return true;
+        }
+        set.add(x);
+    }
+    return false;
+};
+</script>
+</body>
+</html>

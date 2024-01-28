@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+</head>
+<body>
+
+<script type="text/javascript">
+var simplifyPath = function(path) {
+    let stack = [];
+    let str = '';
+    let arr = path.split('/');
+    arr.forEach( val=>{
+        if(  val && val == '..' ){
+            stack.pop();
+        }else if( val && val != '.'){
+            stack.push( val );
+        }
+    })
+    arr.length ? str = '/' + stack.join('/') : str = '/';
+    return str; 
+};
+console.log( simplifyPath('/home//foo/') );
+</script>
+</body>
+</html>
