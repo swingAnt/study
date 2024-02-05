@@ -1,5 +1,7 @@
 阅读:深入浅出webpack
 https://juejin.cn/post/6944245558865297415
+
+
 Hooks的原理
 - 单向链表通过next把hooks串联起来
 - memoizedState存在fiber node上，组件之间不会相互影响
@@ -11,6 +13,39 @@ useState在多个组件中引入，彼此之间会不会有影响? 在React中Ho
 Hooks的问题
 只能在顶层调用Hooks? Hooks是使用数组或单链表串联起来，Hooks顺序修改会打乱执行结果
 useState在多个组件中引入，彼此之间会不会有影响? 在React中Hooks把数据存在fiber node上的，每个组件都有自己的currentlyRenderingFiber.memoizedState
+
+Hooks是React 16.8引入的一个特性，它允许你在不编写类组件的情况下使用state和其他React特性。以下是Hooks的基本原理、使用注意事项和可能遇到的问题。
+
+### 原理
+
+- **useState**: 允许你在函数组件中添加状态。每次组件渲染时，`useState` 返回一对值：当前状态和更新状态的函数。
+- **useEffect**: 用于在函数组件中执行副作用操作（如数据获取、订阅或手动更改DOM）。它可以看作是`componentDidMount`、`componentDidUpdate`和`componentWillUnmount`这些生命周期方法的组合。
+- **useContext**: 允许你在组件树中传递数据而不必使用props。
+- **useReducer**: 类似于`useState`，但它接受一个reducer函数来管理复杂的状态逻辑。
+- **useCallback**: 返回一个记忆化的回调函数。
+- **useMemo**: 返回一个记忆化的值。
+- **useRef**: 返回一个可变的ref对象，其`.current`属性被初始化为传递的参数。
+- **useImperativeHandle**: 自定义使用`ref`时公开给父组件的实例值。
+- **useLayoutEffect**: 与`useEffect`相似，但它在所有DOM变更之后同步触发重渲染。
+- **useDebugValue**: 用于在React开发者工具中显示自定义hook的标签。
+
+### 使用注意事项
+
+- **不要在循环、条件或嵌套函数中调用Hooks**：确保Hooks在函数的最顶层被调用，以保持Hooks的调用顺序一致。
+- **只在React函数组件或自定义Hooks中调用Hooks**：不要在普通的JavaScript函数中调用。
+- **使用`eslint-plugin-react-hooks`**：这个ESLint插件可以帮助你遵守Hooks的规则。
+- **小心闭包陷阱**：在`useEffect`等Hooks中使用的函数可能会捕获旧的state或props值，需要通过依赖数组或其他方式来控制。
+- **优化性能**：使用`useCallback`和`useMemo`来避免不必要的组件渲染，但不要过度优化。
+
+### Hooks的问题
+
+- **学习曲线**：对于习惯了类组件的开发者来说，Hooks引入了新的概念和模式，需要时间去适应。
+- **复杂逻辑难以管理**：对于复杂的状态逻辑和副作用，使用Hooks可能会让组件变得难以理解和维护。
+- **过度使用**：滥用`useCallback`和`useMemo`可能会导致性能问题，因为它们本身也有开销。
+- **测试挑战**：测试使用Hooks的组件可能比测试类组件更加复杂。
+- **规则限制**：Hooks的规则限制了它们的使用方式，有时可能会感到不够灵活。
+
+总的来说，Hooks提供了一种更加函数式的方式来使用React的特性，但它们也带来了新的概念和限制。正确使用Hooks需要对它们的工作原理有深入的理解。
 ————————————————
 版权声明：本文为CSDN博主「Elementsboy」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。
 原文链接：https://blog.csdn.net/Elementsboy/article/details/106585011
@@ -55,6 +90,51 @@ function useState(initVal) {
 1.useState是一个hook。 它的名字以“use”开头（这是Hooks的规则之一 - 它们的名字必须以“use”开头）。
 2.useState hook 的参数是 state 的初始值，返回一个包含两个元素的数组:当前state和一个用于更改state 的函数。
 3.类组件有一个大的state对象，一个函数this.setState一次改变整个state对象。
+
+
+在JavaScript中实现一个简化版的`useState` Hook可以帮助你理解其背后的工作原理。以下是一个非常基础的实现，它模拟了`useState`的基本功能：
+
+```javascript
+let globalState;
+let listener;
+
+function useState(initialValue) {
+  globalState = globalState || initialValue; // 初始化状态
+
+  function setState(newState) {
+    globalState = newState; // 更新状态
+    listener(); // 通知组件重新渲染
+  }
+
+  return [globalState, setState];
+}
+
+function render(Component) {
+  const C = Component(); // 执行组件函数获取组件
+  C.render();
+  return C;
+}
+
+function myComponent() {
+  const [state, setState] = useState(0);
+
+  return {
+    render: () => console.log(`State: ${state}`),
+    click: () => setState(state + 1)
+  };
+}
+
+listener = () => render(myComponent); // 设置listener为重新渲染组件的函数
+
+const app = render(myComponent); // 初始渲染
+app.click(); // 模拟用户点击，增加状态
+app.click(); // 再次点击，增加状态
+```
+
+这个简化版的`useState`使用了全局变量来存储状态，并且只能处理单个组件实例。在实际的React中，`useState`是更复杂的，因为它需要处理多个组件实例和多个状态值。
+
+请注意，这个实现只是为了演示`useState`的基本概念，并不适用于生产环境。在真实的React环境中，`useState`和其他Hooks是由React的渲染引擎管理的，它们与组件的生命周期和渲染流程紧密集成。
+
 useEffect 用来处理副作用
 为什么第二个参数是空数组，相当于 componentDidMount 
 function useEffect(callback, depArray) {
@@ -82,6 +162,79 @@ useContext
 使用方法：
 
     const value = useContext(myContext);
+    `useContext` 是 React 的一个 Hook，它允许你在组件中访问 React 的 Context API 提供的上下文数据。以下是 `useContext` 的基本使用方法：
+
+1. **创建 Context**：
+   首先，你需要使用 `React.createContext()` 创建一个 Context 对象。
+
+```javascript
+const MyContext = React.createContext(defaultValue);
+```
+
+2. **提供 Context 值**：
+   使用 `Context.Provider` 组件包裹你的组件树，并通过 `value` 属性传递数据。
+
+```javascript
+<MyContext.Provider value={/* 一些值 */}>
+  {/* 组件树 */}
+</MyContext.Provider>
+```
+
+3. **消费 Context 值**：
+   在函数组件中，你可以使用 `useContext` Hook 来订阅 Context 的变化，并获取 Context 的当前值。
+
+```javascript
+const value = useContext(MyContext);
+```
+
+### 示例
+
+```javascript
+import React, { useContext, useState } from 'react';
+
+// 创建一个 Context 对象
+const CountContext = React.createContext();
+
+// 一个包含 Provider 的组件
+function CountProvider({ children }) {
+  const [count, setCount] = useState(0);
+  return (
+    <CountContext.Provider value={{ count, setCount }}>
+      {children}
+    </CountContext.Provider>
+  );
+}
+
+// 一个消费 Context 的子组件
+function Counter() {
+  const { count, setCount } = useContext(CountContext);
+  return (
+    <div>
+      <p>Count: {count}</p>
+      <button onClick={() => setCount(count + 1)}>Increment</button>
+    </div>
+  );
+}
+
+// 应用组件
+function App() {
+  return (
+    <CountProvider>
+      <Counter />
+    </CountProvider>
+  );
+}
+
+export default App;
+```
+
+在这个例子中，`CountProvider` 组件提供了一个 `count` 状态和一个可以更新它的 `setCount` 函数。`Counter` 组件通过 `useContext` 获取这些值，并在界面上显示计数器和一个按钮来增加计数。
+
+### 注意事项
+
+- 确保 `useContext` 的参数是 Context 对象本身，而不是 Context 的消费者或提供者。
+- 当 Context 的值发生变化时，所有使用了 `useContext` 并订阅了这个 Context 的组件都将重新渲染。
+- 为了性能优化，确保不要在每次渲染时都传递一个新的对象给 `Provider` 的 `value` 属性，这会导致不必要的渲染。
 当最近的一个myContext.Provider更新的时候，这个hook就会导致当前组件发生更新
 useReducer:
     function reducer(state, action) {
@@ -122,7 +275,56 @@ useRef
 注意：useRef返回相当于一个{current: ...}的plain object，但是和正常这样每轮render之后直接显式创建的区别在于，每轮render之后的useRef返回的plain object都是同一个，只是里面的current发生变化
 
 而且，当里面的current发生变化的时候并不会引起render
+`useRef` 是 React 提供的一个 Hook，它主要有两个作用：
 
+1. **访问 DOM 节点**：
+   `useRef` 可以用来直接访问一个 DOM 元素。当你需要直接操作 DOM，比如设置焦点、测量元素大小或位置时，这个功能非常有用。
+
+```javascript
+function MyComponent() {
+  const myRef = useRef(null);
+
+  useEffect(() => {
+    // 当组件挂载后，myRef.current 将指向对应的 DOM 节点
+    if (myRef.current) {
+      myRef.current.focus();
+    }
+  }, []);
+
+  return <input ref={myRef} />;
+}
+```
+
+在这个例子中，`useRef` 创建了一个 ref 对象，并将其赋给了 `input` 元素的 `ref` 属性。这样，我们就可以通过 `myRef.current` 访问到实际的 DOM 节点，并在组件挂载后立即给输入框设置焦点。
+
+2. **保存跨渲染周期的可变数据**：
+   `useRef` 还可以用来保存一个可变的值，这个值在组件的整个生命周期内保持不变，即使组件重新渲染也不会丢失。这对于存储任何可变值都很有用，而且不会触发组件的重新渲染。
+
+```javascript
+function TimerComponent() {
+  const intervalRef = useRef();
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      // ...你的逻辑代码
+    }, 1000);
+    intervalRef.current = id;
+    return () => clearInterval(intervalRef.current);
+  }, []);
+
+  // ...其他逻辑
+}
+```
+
+在这个例子中，`intervalRef` 用来保存一个定时器的 ID。即使组件重新渲染，这个 ID 也不会丢失，并且可以在组件卸载时用来清除定时器。
+
+### 注意事项
+
+- `useRef` 返回的 ref 对象在组件的整个生命周期内保持不变。
+- `useRef` 不仅可以用来存储 DOM 引用，还可以用来存储任何可变值。
+- 当 ref 对象内容发生变化时，不会通知你或触发重新渲染。
+- 如果你需要在数据变化时触发组件更新，请使用 `useState` 或 `useReducer`。
+- 
 React Fiber的方式
 破解JavaScript中同步操作时间过长的方法其实很简单——分片。
 
@@ -139,6 +341,94 @@ animation，下一帧之前执行
 high，在不久的将来立即执行
 low，稍微延迟执行也没关系
 offscreen，下一次render时或scroll时才执行
+
+
+React Fiber 是 React 16 中引入的一种新的内部算法，用于增强其核心渲染引擎。Fiber 的目标是提高 React 在渲染大型应用程序时的性能和响应性。它主要通过以下方式实现这一目标：
+
+### 任务可中断
+Fiber 引入了一种能够将渲染工作分割成多个小任务的机制。这些任务可以被中断和重新启动，而不会阻塞浏览器的主线程。这意味着 React 可以在需要时暂停渲染工作，以确保主线程可以处理更紧急的任务，如用户输入、动画等。
+
+### 更好的任务调度
+Fiber 架构允许 React 更智能地调度任务的优先级。例如，动画和用户交互具有较高的优先级，而隐藏的组件更新则可以推迟处理。这种优先级调度有助于确保应用程序的关键任务能够快速完成，从而提高用户体验。
+
+### 增量渲染
+通过将渲染工作分割成小块，Fiber 允许 React 在浏览器空闲时逐步完成渲染任务。这种增量渲染策略有助于避免长时间阻塞主线程，从而减少应用程序的卡顿现象。
+
+### 更好的错误处理
+Fiber 架构引入了一种新的错误边界（Error Boundaries）概念，允许开发者更好地处理组件树中的错误。错误边界可以捕获其子组件树中的 JavaScript 错误，防止整个应用崩溃，并提供回退 UI。
+
+### 新的生命周期方法
+为了更好地适应 Fiber 架构，React 引入了新的生命周期方法，如 `getDerivedStateFromProps` 和 `getSnapshotBeforeUpdate`，同时废弃了一些旧的生命周期方法，如 `componentWillMount`、`componentWillReceiveProps` 和 `componentWillUpdate`。
+
+### 兼容性
+尽管 Fiber 架构对 React 的内部实现做了根本性的改变，但它保持了与旧版本的兼容性。开发者可以逐步迁移到新版本，而不必担心现有代码会立即失效。
+
+总的来说，React Fiber 是对 React 核心算法的重写，它使得 React 能够更好地处理应用程序的性能和响应性问题，特别是在复杂和大型应用程序中。Fiber 的引入是 React 发展中的一个重要里程碑，为未来的功能和改进奠定了基础。
+
+
+
+
+`getDerivedStateFromProps` 和 `getSnapshotBeforeUpdate` 是 React 类组件中的两个生命周期方法，它们在 React 16.3 版本中引入，以适应新的异步渲染方式。下面是这两个方法的作用和使用场景：
+
+### getDerivedStateFromProps
+
+`getDerivedStateFromProps` 是一个静态方法，用于在组件实例化后以及重新渲染前将 props 映射到 state。这个方法的返回值将会被用作 state 的更新。
+
+```javascript
+class MyComponent extends React.Component {
+  static getDerivedStateFromProps(props, state) {
+    // 返回一个对象来更新 state，或者返回 null 表示不需要更新 state
+    if (props.value !== state.value) {
+      return {
+        value: props.value,
+      };
+    }
+    return null;
+  }
+}
+```
+
+**使用场景**：当组件的 state 依赖于外部 props 变化时，可以使用这个方法来更新 state。
+
+**注意事项**：
+- 这是一个静态方法，因此在方法内部不能访问 `this`。
+- 如果返回 `null`，则不更新任何 state。
+- 应谨慎使用，以避免不必要的重新渲染。
+
+### getSnapshotBeforeUpdate
+
+`getSnapshotBeforeUpdate` 在最新的渲染输出被提交到 DOM 前被调用。它允许你在 DOM 变化前捕获一些信息（例如，滚动位置），这个返回值将作为 `componentDidUpdate` 的第三个参数。
+
+```javascript
+class MyComponent extends React.Component {
+  getSnapshotBeforeUpdate(prevProps, prevState) {
+    // 捕获更新前的某些信息，如滚动位置等
+    if (prevProps.list.length < this.props.list.length) {
+      const list = this.listRef.current;
+      return list.scrollHeight - list.scrollTop;
+    }
+    return null;
+  }
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (snapshot !== null) {
+      const list = this.listRef.current;
+      list.scrollTop = list.scrollHeight - snapshot;
+    }
+  }
+}
+```
+
+**使用场景**：当你需要在 DOM 更新后保持某些状态（如滚动位置）时，可以使用这个方法。
+
+**注意事项**：
+- 这个方法在更新发生前被调用，所以它可以读取但不能更改 DOM。
+- 返回的值或 `null` 将作为 `componentDidUpdate` 的第三个参数。
+- 如果你不需要使用 `snapshot`，则不必实现这个方法。
+
+这两个方法是为了替代旧的生命周期方法（如 `componentWillReceiveProps` 和 `componentWillUpdate`），以支持 React 的异步渲染策略。它们提供了更安全的方式来处理 state 和 DOM 的更新。
+
+
 
 new Promise
 创建promise并添加回调，串联方式
@@ -164,15 +454,17 @@ Promise.all = arr => {
       let i = 0;
       next();    // 开始逐次执行数组中的函数(重要)
       function next() {
-        arr[i].then(function (res) {
-          aResult.push(res);    // 存储每次得到的结果
+        arr[i].then(function (value) {
+          aResult.push(value);    // 存储每次得到的结果
           i++;
           if (i == arr.length) {    // 如果函数数组中的函数都执行完，便resolve
             resolve(aResult);
           } else {
             next();
           }
-        })
+        }, reason => {
+        return reject(reason);
+      })
       }
     })
   };
@@ -192,6 +484,30 @@ Promise.all(promiseArray).then(function (results) {
 }).catch(error => {
     // 先执行失败任务的参数error
 })
+
+function promiseAll(promises) {
+  return new Promise((resolve, reject) => {
+    if (!Array.isArray(promises)) {
+      return reject(new TypeError('arguments must be an array'));
+    }
+    let resolvedCounter = 0;
+    let promiseNum = promises.length;
+    let resolvedValues = new Array(promiseNum);
+
+    for (let i = 0; i < promiseNum; i++) {
+      Promise.resolve(promises[i]).then(value => {
+        resolvedCounter++;
+        resolvedValues[i] = value;
+        if (resolvedCounter === promiseNum) {
+          return resolve(resolvedValues);
+        }
+      }, reason => {
+        return reject(reason);
+      });
+    }
+  });
+}
+
 Promise.race
 并行执行异步任务，只要有一个完成就执行回调，后完成的抛弃。
 应用场景：不同的方式执行异步任务，目的是一样的，然后谁返回的快用谁。
@@ -208,6 +524,41 @@ Promise.race(promiseArray).then(function (result) {
 }).catch(function (error) {
     // 先执行完毕的异步任务失败的回调
 })
+
+
+`Promise.race` 是一个静态方法，它接收一个 Promise 对象的数组作为输入，并返回一个新的 Promise 实例。这个新的 Promise 将会解决（resolved）或拒绝（rejected）为第一个解决或拒绝的输入 Promise 的结果。
+
+以下是一个简单的 `Promise.race` 实现：
+
+```javascript
+function promiseRace(promises) {
+  return new Promise((resolve, reject) => {
+    if (!Array.isArray(promises)) {
+      return reject(new TypeError('arguments must be an array'));
+    }
+    for (let i = 0; i < promises.length; i++) {
+      // 使用 Promise.resolve 包装每个元素，以确保每个都是 Promise
+      Promise.resolve(promises[i]).then(
+        value => {
+          resolve(value); // 一旦任何一个 Promise 解决，就解决整个 Promise.race
+        },
+        reason => {
+          reject(reason); // 一旦任何一个 Promise 拒绝，就拒绝整个 Promise.race
+        }
+      );
+    }
+  });
+}
+```
+
+这个 `promiseRace` 函数的工作原理如下：
+
+1. 首先检查输入是否为数组，如果不是，则立即拒绝返回的 Promise。
+2. 遍历输入的 Promise 数组，对每个 Promise 使用 `Promise.resolve` 来确保它们都是 Promise 对象。
+3. 对每个 Promise 注册一个 `.then` 处理程序，无论是解决还是拒绝，都将处理返回的 Promise。
+4. 第一个解决或拒绝的 Promise 将决定返回的 Promise 的 fate，它将采用相同的值或拒绝原因。
+
+请注意，这个实现是为了演示 `Promise.race` 的基本行为，并不包括一些边缘情况处理。在实际应用中，应该使用原生的 `Promise.race` 方法，因为它是经过充分测试的，并且性能经过优化。
 手写promise
 https://zhuanlan.zhihu.com/p/144058361
 
@@ -284,6 +635,50 @@ http://www.ruanyifeng.com/blog/2015/07/flex-grammar.html
 小青蛙算法
 https://blog.csdn.net/weixin_38118016/article/details/79068755
 onDownloadProgress keep-alive
+
+解法3 动态规划
+/**
+* 到达第 i 阶的方法总数 = 第 i -1 阶方法数 + 第 i -2 阶方法数
+*/
+function climbStairs3(n) {
+    if (n === 1) {
+        return 1;
+    }
+    let dp = new Array(n + 1);
+    dp[1] = 1;
+    dp[2] = 2;
+    for (let i = 3; i <= n; i++) {
+        dp[i] = dp[i - 1] + dp[i - 2];
+    }
+    return dp[n];
+}
+
+时间复杂度： O(n) 单循环到 n
+
+空间复杂度：O(n) dp 数组用了 n 空间
+
+ 
+
+解法4 斐波那契
+function climbStairs(n) {
+    if (n === 1) {
+        return 1;
+    }
+    let first = 1;
+    let second = 2;
+    for (let i = 3; i <= n; i++) {
+        let third = first + second;
+        first = second;
+        second = third;
+    }
+    return second;
+}
+
+时间复杂度： O(n) 单循环到 n
+
+空间复杂度：O(1) 
+————————————————
+
 JS的十大经典算法
 https://www.cnblogs.com/yinhao-jack/p/10838401.html
 
@@ -292,11 +687,60 @@ https://www.jianshu.com/p/35d69cf24f1f
 
 前端经典面试题解密-add(1)(2)(3)(4) == 10到底是个啥？
 https://www.imooc.com/article/302720?block_id=tuijian_wz
+
+
+// 定长参数
+function add (a, b, c, d) {
+	return [
+	  ...arguments
+	].reduce((a, b) => a + b)
+}
+
+function currying (fn) {
+	let len = fn.length
+	let args = []
+	return function _c (...newArgs) {
+		// 合并参数
+		args = [
+			...args,
+			...newArgs
+		]
+		// 判断当前参数集合args的长度是否 < 目标函数fn的需求参数长度
+		if (args.length < len) {
+			// 继续返回函数
+			return _c
+		} else {
+			// 返回执行结果
+			return fn.apply(this, args.slice(0, len))
+		}
+	}
+}
+let addCurry = currying(add)
+let total = addCurry(1)(2)(3)(4) // 同时支持addCurry(1)(2, 3)(4)该方式调用
+console.log(total) // 10
+
+
 js闭包实现
 https://blog.csdn.net/ChauncyWu/article/details/90740733
 
+
+function add (a) {
+    function sum(b) { // 使用闭包
+        a = a + b; // 累加
+        return sum;
+    }
+    sum.toString = function() { // 重写toSting() 方法
+        return a;
+    }
+    return sum; // 返回一个函数
+}
+ 
+console.log(add(1)(3)) // 4
+console.log(add(1)(3)(5)) // 9
+
 变量提升
 https://www.jianshu.com/p/24973b9db51a
+
 JavaScript变量提升优先级
 https://blog.csdn.net/weixin_40492102/article/details/103746596
 
@@ -307,14 +751,58 @@ promise.all
 diff算法以及原理
 fiber 树
 HTML渲染机制
+HTML（HyperText Markup Language）渲染机制是指浏览器如何解析 HTML 文档并将其转换为用户可以交互的页面的过程。这个过程大致可以分为以下几个步骤：
+
+1. **解析 HTML**: 浏览器从服务器接收到 HTML 文件后，会逐行读取并解析 HTML 标记，构建一个称为 DOM（Document Object Model）的树状结构。DOM 树代表了页面的结构。
+
+2. **解析 CSS**: 同时，浏览器也会解析外部的、内部的以及内联的 CSS 样式，并生成 CSSOM（CSS Object Model）。CSSOM 与 DOM 树结合，用于确定每个元素的最终样式。
+
+3. **构建渲染树**: 浏览器将 DOM 和 CSSOM 结合起来创建渲染树（Render Tree）。渲染树只包含需要显示的节点和这些节点的样式信息。
+
+4. **布局（Reflow）**: 一旦渲染树被创建，浏览器就会进行布局，计算每个节点的确切位置和大小。这个过程也被称为回流。
+
+5. **绘制（Paint）**: 布局完成后，浏览器会通过渲染树来绘制页面，将每个节点转换为屏幕上的实际像素。
+
+6. **合成（Composite）**: 最后，浏览器可能会将多个层合成在一起，以优化性能和允许复杂的视觉效果，如阴影和动画。
+
+这个过程是渐进的，意味着浏览器会尽快显示内容，而不是等到所有内容都完全下载和处理后再显示。这就是为什么你有时会看到页面逐步加载的原因。
+
+如果在页面加载或交互过程中 DOM 或 CSSOM 被修改（例如，通过 JavaScript），浏览器可能需要重新布局和绘制，这可能会导致性能问题。因此，开发者通常会尽量减少这种重排（Reflow）和重绘（Repaint）以提高页面性能。
 TypeScript
-react+redux,redux-thunk
+react+redux,redux-thunk  
+React 是一个用于构建用户界面的 JavaScript 库，Redux 是一个用于管理和中心化应用状态的库。它们通常一起使用在大型的 React 应用中来管理状态。
+
+Redux-Thunk 是一个 Redux 的中间件，它允许你编写返回函数的 action creators 而不仅仅是对象。这使得你可以延迟 action 的派发，或者只在满足特定条件时才派发 action。它主要用于处理异步操作，比如 API 调用。
+
+在使用 Redux-Thunk 的异步 action creators 中，你可以访问 dispatch 和 getState 这两个函数，这样你就可以在操作完成后派发一个新的 action 或者根据当前的状态来决定是否派发 action。
 React Hooks 为什么不能放到if中，必须在顶部  useLayoutEffect，useMemo性能优化：缓存数据，缓存在哪里 https://blog.csdn.net/setSail20181101/article/details/105722851
+
 hash与chunkhash定义
 [hash] is replaced by the hash of the compilation.
 [chunkhash] is replaced by the hash of the chunk.
 hash、chunkhash使用场景
 chunkhash是根据具体模块文件的内容计算所得的hash值，所以某个文件的改动只会影响它本身的hash指纹，不会影响其他文件。
+
+
+在 Webpack 打包工具中，`hash` 和 `chunkhash` 是两种用于生成输出文件名的哈希值，它们帮助在文件内容发生变化时控制浏览器缓存。
+
+1. **hash**: 这是每次构建过程中生成的唯一的哈希值。不管是哪个文件发生了变化，所有的输出文件（包括 JavaScript、CSS 等）都会有相同的 `hash` 值。这意味着，如果你的项目中任何一个文件发生变化，用户将不得不重新下载所有文件，因为整个构建的哈希值已经改变了。
+
+2. **chunkhash**: 相比 `hash`，`chunkhash` 是基于每个 chunk 的内容计算得出的。如果一个 chunk 的内容没有变化，那么它的 `chunkhash` 也不会变。这样，只有当特定文件（或模块）发生变化时，浏览器才需要重新下载这个文件，而不是整个包。这对于缓存优化非常有用，因为它允许浏览器只更新变化的文件。
+
+例如，如果你的应用有一个供应商库（vendor library）和你自己的应用代码，你可能希望只在供应商库变化时才重新下载供应商库，而在你的应用代码变化时只重新下载应用代码。使用 `chunkhash` 可以实现这一点，因为供应商库和应用代码通常被打包成不同的 chunks。
+
+在 Webpack 配置中，你可以在输出文件名中使用这些哈希值，例如：
+
+```javascript
+output: {
+  filename: '[name].[chunkhash].js',
+  path: __dirname + '/dist'
+}
+```
+
+这将确保每个 chunk 的文件名都是基于它们内容的哈希值，从而在内容发生变化时更新文件名。
+
 通过filter改变图片:https://blog.csdn.net/llll789789/article/details/97390485
 
 react+typescript 父组件主动获取子组件内暴露的方法或属性:
@@ -771,7 +1259,7 @@ public WebResourceResponse shouldInterceptRequest(WebView view,
 
 3.1.2.1 请求中body丢失
 
-WebResourceRequest中不包含body，该方法中不要拦截post请求，会有丢失body的风险。京东只用该方法加载本地文件资源，所以不存在body丢失的情况。
+WebResourceRequest中不包含body，该方法中不要拦截post请求，会有丢失body的风险。只用该方法加载本地文件资源，所以不存在body丢失的情况。
 
 
 3.1.2.2 WebResourceResponse的构造
