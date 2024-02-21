@@ -1,4 +1,4 @@
-# ea-cra 企业应用研发前端开发工具
+#  前端开发工具
 
 ## 背景  
   
@@ -10,17 +10,17 @@
 
 ## 目标
 
-- 支持 ea-cra create
-  - 创建项目模板：PC端、移动端（主要针对京me）
-- 支持 ea-cra pont
+- 支持  create
+  - 创建项目模板：PC端、移动端）
+- 支持  pont
   - 使用pont 初始化 swagger 接口定义
-- 支持 ea-cra dev
+- 支持  dev
   - 使用webpack 或 vite 本地开发，可无缝切换不同打包工具
-- 支持 ea-cra test
+- 支持  test
   - 使用 jest 提高前端测试覆盖率
-- 支持 ea-cra build
+- 支持  build
   - 使用 webpack（esbuild、rollup） 构建项目
-- 支持 ea-cra release
+- 支持  release
   - 发布项目到前端版本统一平台  
 
 ## 前端开发流程
@@ -31,37 +31,37 @@
   
 ```bash
 # 安装命令
-pnpm i @jd/ea-cra typecript
+pnpm i @jd/ typecript
 
 # 交互式命令创建项目
-npx ea-cra create
+npx  create
 
 ```
 
 2. 生成后台接口定义
 ```bash
-# 修改ea-cra.js 中 swaggerUrl 配置
-npx ea-cra pont
+# 修改.js 中 swaggerUrl 配置
+npx  pont
 ```
 
 3. 开发及测试
 
 ```bash
 # 启动开发
-npx ea-cra dev
+npx  dev
 
 # 不断添加单元测试
-npx ea-cra jest
+npx  jest
 ```
 
 4. 发布
 
 ```bash
 # 发布（通过在bamboo中配置环境变量，发布到不同环境：测试、预发、生成）
-npx ea-cra release
+npx  release
 ```
 
-## ea-cra.js 配置文件说明
+## .js 配置文件说明
 
 ```typescript
 {
